@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carte Interactive - 60 Gares et Localités Belges</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CORRECTION : Liens complets vers la bibliothèque Leaflet (CSS et JS) -->
+    <link rel="stylesheet" href="https://unpkg.com" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #legend {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 250px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1px solid #fff;
+            box-shadow: 0 0 3px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="legend">
+    <div class="legend-title">Provinces & Zones</div>
+</div>
+
+<script>
+    // Initialisation de la carte centrée sur la Belgique
+    var map = L.map('map').setView([50.5039, 4.4699], 8.5);
+
+    // Fond de carte OpenStreetMap officiel
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Couleurs attribuées par province
+    var colors = {
+        "Hainaut": "#e41a1c",      // Rouge
+        "Namur": "#377eb8",        // Bleu
+        "Liège": "#4daf4a",        // Vert
+        "Luxembourg": "#984ea3",   // Violet
+        "Flandre": "#ff7f00"       // Orange
+    };
+
+    // Génération automatique de la légende à l'écran
+    var legendDiv = document.getElementById('legend');
+    for (var prov in colors) {
+        var item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = '<div class="legend-color" style="background:' + colors[prov] + ';"></div>' + prov;
+        legendDiv.appendChild(item);
+    }
+
+    // Coordonnées et classification de vos 60 points
+    var locations = [
+        // Hainaut
+        {name: "HOURPES", lat: 50.3697, lng: 4.3418, prov: "Hainaut"},
+        {name: "MAUBRAY", lat: 50.5401, lng: 3.4839, prov: "Hainaut"},
+        {name: "BEIGNEE", lat: 50.3347, lng: 4.3989, prov: "Hainaut"},
+        {name: "CALLENELLE", lat: 50.5348, lng: 3.5681, prov: "Hainaut"},
+        {name: "HARCHIES", lat: 50.4727, lng: 3.6841, prov: "Hainaut"},
+        {name: "VILLE-POMMEROEUL", lat: 50.4721, lng: 3.7056, prov: "Hainaut"},
+        {name: "MARCHIENNE-ZONE", lat: 50.4023, lng: 4.3855, prov: "Hainaut"},
+        {name: "JAMIOULX", lat: 50.3541, lng: 4.4172, prov: "Hainaut"},
+        {name: "OBOURG", lat: 50.4746, lng: 4.0041, prov: "Hainaut"},
+        {name: "LABUISSIERE", lat: 50.3564, lng: 4.1293, prov: "Hainaut"},
+        {name: "SOLRE-SUR-SAMBRE", lat: 50.3121, lng: 4.1561, prov: "Hainaut"},
+        {name: "FONTAINE-VALMONT", lat: 50.3235, lng: 4.1189, prov: "Hainaut"},
+        {name: "LANDELIES", lat: 50.3734, lng: 4.3524, prov: "Hainaut"},
+        {name: "PONT-A-CELLES", lat: 50.5126, lng: 4.3642, prov: "Hainaut"},
+        {name: "NEUFVILLES", lat: 50.5593, lng: 3.9922, prov: "Hainaut"},
+        {name: "THULIN", lat: 50.4312, lng: 3.7345, prov: "Hainaut"},
+        {name: "HAVRE", lat: 50.4651, lng: 4.0412, prov: "Hainaut"},
+        {name: "GENLY", lat: 50.3681, lng: 3.9572, prov: "Hainaut"},
+        {name: "HAM-SUR-HEURE", lat: 50.3217, lng: 4.3916, prov: "Hainaut"},
+        {name: "HAININ", lat: 50.4431, lng: 3.7742, prov: "Hainaut"},
+        {name: "ERQUELINNES-VILLAGE", lat: 50.3061, lng: 4.1121, prov: "Hainaut"},
+        {name: "MASNUY-SAINT-PIERRE", lat: 50.5312, lng: 3.9641, prov: "Hainaut"},
+
+        // Namur
+        {name: "PRY", lat: 50.2743, lng: 4.4419, prov: "Namur"},
+        {name: "COUR-SUR-HEURE", lat: 50.2974, lng: 4.3981, prov: "Namur"},
+        {name: "CHAPOIS", lat: 50.2742, lng: 5.1412, prov: "Namur"},
+        {name: "MAZY", lat: 50.4735, lng: 4.6942, prov: "Namur"},
+        {name: "LEIGNON", lat: 50.2711, lng: 5.1124, prov: "Namur"},
+        {name: "GENDRON-CELLES", lat: 50.2104, lng: 4.9652, prov: "Namur"},
+        {name: "CHAPELLE-DIEU", lat: 50.5612, lng: 4.6912, prov: "Namur"},
+        {name: "MARCHE-LES-DAMES", lat: 50.4735, lng: 4.9621, prov: "Namur"},
+        {name: "HAVERSIN", lat: 50.2142, lng: 5.2141, prov: "Namur"},
+        {name: "GRAIDE", lat: 49.9881, lng: 5.0682, prov: "Namur"},
+        {name: "YVES-GOMEZEE", lat: 50.2312, lng: 4.4912, prov: "Namur"},
+
+        // Liège
+        {name: "HERGENRATH", lat: 50.7061, lng: 6.0282, prov: "Liège"},
+        {name: "PEPINSTER-CITE", lat: 50.5735, lng: 5.7942, prov: "Liège"},
+        {name: "BLERET", lat: 50.6812, lng: 5.2341, prov: "Liège"},
+        {name: "BAS-OHA", lat: 50.5242, lng: 5.1841, prov: "Liège"},
+        {name: "DOLHAIN-GILEPPE", lat: 50.6212, lng: 5.9412, prov: "Liège"},
+        {name: "SCLESSIN", lat: 50.6135, lng: 5.5392, prov: "Liège"},
+        {name: "LEMAN", lat: 50.6021, lng: 5.4831, prov: "Liège"},
+        {name: "VERVIERS-PALAIS", lat: 50.5942, lng: 5.8671, prov: "Liège"},
+        {name: "CHAUDFONTAINE", lat: 50.5891, lng: 5.6412, prov: "Liège"},
+
+        // Luxembourg
+        {name: "POIX-SAINT-HUBERT", lat: 50.0162, lng: 5.2912, prov: "Luxembourg"},
+        {name: "FORRIERES", lat: 50.1312, lng: 5.2671, prov: "Luxembourg"},
+        {name: "GRUPONT", lat: 50.0914, lng: 5.2891, prov: "Luxembourg"},
+        {name: "VIVILLE", lat: 49.6991, lng: 5.7972, prov: "Luxembourg"},
+        {name: "STOCKEM", lat: 49.6821, lng: 5.7721, prov: "Luxembourg"},
+        {name: "CARLSBOURG", lat: 49.9012, lng: 5.0142, prov: "Luxembourg"},
+        {name: "PALISEUL", lat: 49.9071, lng: 5.1212, prov: "Luxembourg"},
+        {name: "AYE", lat: 50.2311, lng: 5.3121, prov: "Luxembourg"},
+
+        // Flandre
+        {name: "AALST-KERREBROEK", lat: 50.9521, lng: 4.0291, prov: "Flandre"},
+        {name: "VIJFHUIZEN", lat: 50.9492, lng: 3.9871, prov: "Flandre"},
+        {name: "AARSELE", lat: 51.0041, lng: 3.4214, prov: "Flandre"},
+        {name: "HAMBOS", lat: 50.9421, lng: 4.6712, prov: "Flandre"},
+        {name: "BAMBRUGGE", lat: 50.9231, lng: 3.9412, prov: "Flandre"},
+        {name: "ERPE-MERE", lat: 50.9341, lng: 3.9681, prov: "Flandre"},
+        {name: "WOLFSTEE", lat: 51.1571, lng: 4.8112, prov: "Flandre"},
+        {name: "ZONHOVEN", lat: 50.9921, lng: 5.3671, prov: "Flandre"},
+        {name: "LANDSKOUTER", lat: 50.9781, lng: 3.7942, prov: "Flandre"},
+        {name: "BERINGEN", lat: 51.0492, lng: 5.2241, prov: "Flandre"}
+    ];
+
+    // Ajout des points sous forme de marqueurs circulaires modernes et nets
+    locations.forEach(function(loc) {
+        var markerColor = colors[loc.prov] || "#333";
+        L.circleMarker([loc.lat, loc.lng], {
+            radius: 7,
+            fillColor: markerColor,
+            color: "#ffffff",
+            weight: 1.5,
+            opacity: 1,
+            fillOpacity: 0.85
+        }).addTo(map)
+          .bindPopup("<strong>" + loc.name + "</strong><br>Région / Province : " + loc.prov);
+    });
+</script>
+
+</body>
+</html>
